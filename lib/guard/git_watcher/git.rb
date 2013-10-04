@@ -4,24 +4,25 @@ module Guard
       DEFAULT_COMMIT_MESSAGE = 'Updated.'
       DEFAULT_BRANCH         = 'master'
 
-      def update(message = DEFAULT_COMMIT_MESSAGE, branch = DEFAULT_BRANCH)
+      def update(message = nil, branch = nil)
         if changed?
           commit message or raise "#{self.class.name} failed to commit."
           push branch or raise "#{self.class.name} failed to push."
         end
       end
 
-      def commit(message = DEFAULT_COMMIT_MESSAGE)
+      def commit(message = nil)
+        message ||= DEFAULT_COMMIT_MESSAGE
         run 'git add .', "git commit -am #{message.shellescape}"
       end
 
       def push(branch = nil)
+        branch ||= DEFAULT_BRANCH
         run "git push origin #{branch.shellescape}"
       end
 
       def run(*args)
-        args.unshift cd
-        system join(*args)
+        system build(*args)
       end
 
       def changed?
@@ -30,6 +31,11 @@ module Guard
 
       def join(*args)
         args * ' && '
+      end
+
+      def build(*args)
+        args.unshift cd
+        join *args
       end
 
       def branch
