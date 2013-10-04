@@ -10,17 +10,24 @@ module Guard
     end
 
     def run_on_changes(paths)
+      update_repository paths
+    end
+
+    def run_on_removals(paths)
+      update_repository paths
+    end
+
+    private
+
+    def update_repository(paths)
       each_directories paths do |dir, paths|
         Git.new(dir, @options).update
       end
     end
 
-    private
-
     def each_directories(paths, &block)
       ::Guard.listener.directories.each do |dir|
         existent_paths = paths.map{|path| File.expand_path File.join(dir, path) }
-                          .select{|path| File.exist? path }
 
         next if existent_paths.empty?
         
